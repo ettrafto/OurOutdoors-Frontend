@@ -1,0 +1,30 @@
+.comments-container {
+    border: 1px solid #ccc; /* Gray border */
+    padding: 16px; /* Padding around the content inside the container */
+    display: flex; /* Enables the use of flexbox layout */
+    flex-direction: column; /* Aligns children (comments, input, button) in a column */
+    align-items: center; /* Centers items horizontally within the container */
+    width: 100%; /* Ensures the container takes full width of its parent */
+  }
+  .comments-container div{
+    width: 66%;  
+  }
+  
+  .comment-item {
+    background-color: #f9f9f9; /* Light gray background for each comment */
+    padding: 8px; /* Padding inside each comment */
+    border-radius: 4px; /* Rounded corners for comment items */
+    margin-bottom: 8px; /* Space between comments */
+    width: 100%; /* Full width within the container */
+    box-sizing: border-box; /* Includes padding and border in the width */
+  }
+  
+  .comments-input {
+    width: 100%; /* Full width for the input */
+    margin-bottom: 8px; /* Space between the input and the button */
+  }
+  
+  .comments-button {
+    width: auto; /* Auto width based on content */
+    padding: 8px 16px; /* Padding around the button text */
+  }

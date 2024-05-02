@@ -1,0 +1,77 @@
+.event-item {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+.event-item__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; /* Ensures that child elements fill the height */
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.26);
+}
+
+.event-info {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.author h3 {
+  margin: 0;
+  padding-bottom: 0.5rem;
+}
+
+.event-title-datetime {
+  display: flex;
+  align-items: center; /* Center align the title and datetime */
+}
+
+.event-title-datetime h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.event-datetime {
+  margin-left: 0.5em; /* Spacing between title and datetime */
+}
+
+.event-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.event-meta {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.event-interaction {
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Adjusted for alignment */
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the icon and text horizontally */
+  flex: 1; /* Allows each container to take up one third of the space */
+  margin-bottom: 0.5rem; /* Space between each icon container */
+}
+
+
+.icon-container img {
+  width: 24px; /* Smaller size for the icons */
+  height: 24px;
+  margin-right: 0.5rem; /* Space between icon and number */
+}
+
+.participant-icon-container, .like-icon-container, .comment-icon-container {
+  flex: 1; /* Ensures each takes equal space */
+}
