@@ -5,27 +5,17 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import { useForm } from '../../shared/hooks/form-hook';
 import { VALIDATOR_REQUIRE, VALIDATOR_EMAIL } from '../../shared/util/validators';
-
-const DUMMY_USER = [{
-    id: "u1",
-    name: { value: 'John Doe', isValid: true },
-    about: { value: 'Love to travel and write.', isValid: true },
-    email: { value: 'john@example.com', isValid: true }
-},{
-    id: "u2",
-    name: { value: 'John Doe 2', isValid: true },
-    about: { value: 'Love to travel and write.', isValid: true },
-    email: { value: 'john@example.com', isValid: true }
-}]
-
+import Modal from '../../shared/components/UIElements/Modal';
+import { useHttpClient } from '../../shared/hooks/http-hook'; 
+import ErrorModal from '../../shared/components/UIElements/ErrorModal'; 
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 
 const EditProfile = () => {
-    
+    const { userId } = useParams();
     const navigate = useNavigate();
-    const userId = useParams().userId;
-    const [isLoading, setIsLoading] = useState(true);
-
-
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
+    const [showModal, setShowModal] = useState(false);
+    const [loadedUser, setLoadedUser] = useState(null);
 
     const [formState, inputHandler, setFormData] = useForm({
         name: { value: '', isValid: false },
@@ -33,87 +23,94 @@ const EditProfile = () => {
         email: { value: '', isValid: false }
     }, false);
 
-    const identifiedUser = DUMMY_USER.find(p => p.id === userId);
-
-
     useEffect(() => {
-        if(identifiedUser){
+        const fetchUser = async () => {
+            try {
+                const responseData = await sendRequest(`http://localhost:5000/api/users/${userId}`);
+                setLoadedUser(responseData.user);
+                setFormData({
+                    name: { value: responseData.user.name, isValid: true },
+                    about: { value: responseData.user.about, isValid: true },
+                    email: { value: responseData.user.email, isValid: true }
+                }, true);
+            } catch (err) {
+                console.error("Failed to fetch user data:", err);
+            }
+        };
+        if (!loadedUser) fetchUser();
+    }, [userId, sendRequest, setFormData, loadedUser]);
 
-            // replace w/ API call
-            setFormData({
-                name: { value: identifiedUser.name.value, isValid: true },
-                about: { value: identifiedUser.about.value, isValid: true },
-                email: { value: identifiedUser.email.value, isValid: true }
-            }, true);
-        }
-        setIsLoading(false);
-    }, [setFormData,identifiedUser]); 
-
-    const profileUpdateSubmitHandler = event => {
+    const profileUpdateSubmitHandler = async event => {
         event.preventDefault();
-        //TODO API Call
-        console.log(formState.inputs);
-        navigate('/profile');
+        try {
+            await sendRequest(
+                `http://localhost:5000/api/users/${userId}`,
+                'PATCH',
+                JSON.stringify({
+                    name: formState.inputs.name.value,
+                    about: formState.inputs.about.value,
+                    email: formState.inputs.email.value
+                }),
+                { 'Content-Type': 'application/json' }
+            );
+            setShowModal(true);
+        } catch (err) {
+            console.error('Failed to update the user:', err);
+        }
     };
 
-    console.log(formState.inputs.name.value)
-    if(!identifiedUser){
-        return (
-            <div className="center">
-                <Card>
-                    <h2>Could not find user!</h2>
-                </Card>
-            </div>
-            );
+    if (isLoading || !loadedUser) {
+        return <LoadingSpinner />;
     }
 
-    if(isLoading){
-        return (
-            <div className="center">
-                <h2>Loading...</h2>
-            </div>
-        );
-    }
     return (
-        <Card>
-            <form onSubmit={profileUpdateSubmitHandler}>
-                <Input
-                    id="name"
-                    element="input"
-                    type="text"
-                    label="Your Name"
-                    validators={[VALIDATOR_REQUIRE()]}
-                    errorText="Please enter a valid name."
-                    onInput={inputHandler}
-                    initialValue={formState.inputs.name.value}
-                    initialValid={formState.inputs.name.isValid}
-                />
-                <Input
-                    id="about"
-                    element="textarea"
-                    label="About"
-                    validators={[VALIDATOR_REQUIRE()]}
-                    errorText="Please enter a valid about section."
-                    onInput={inputHandler}
-                    initialValue={formState.inputs.about.value}
-                    initialValid={formState.inputs.about.isValid}
-                />
-                <Input
-                    id="email"
-                    element="input"
-                    type="email"
-                    label="Email"
-                    validators={[VALIDATOR_EMAIL()]}
-                    errorText="Please enter a valid email address."
-                    onInput={inputHandler}
-                    initialValue={formState.inputs.email.value}
-                    initialValid={formState.inputs.email.isValid}
-                />
-                <Button type="submit" disabled={!formState.isValid}>
-                    Update Profile
-                </Button>
-            </form>
-        </Card>
+        <>
+            <ErrorModal error={error} onClear={clearError} />
+            <Modal
+                show={showModal}
+                onCancel={() => setShowModal(false)}
+                header="Profile Updated Successfully!"
+                footer={<Button onClick={() => navigate(`/profile/${userId}`)}>Go to Profile</Button>}
+            >
+                <p>Your profile has been successfully updated!</p>
+            </Modal>
+            <Card>
+                <form onSubmit={profileUpdateSubmitHandler}>
+                    <Input
+                        id="name"
+                        element="input"
+                        type="text"
+                        label="Your Name"
+                        validators={[VALIDATOR_REQUIRE()]}
+                        onInput={inputHandler}
+                        initialValue={formState.inputs.name.value}
+                        initialValid={formState.inputs.name.isValid}
+                    />
+                    <Input
+                        id="about"
+                        element="textarea"
+                        label="About"
+                        validators={[VALIDATOR_REQUIRE()]}
+                        onInput={inputHandler}
+                        initialValue={formState.inputs.about.value}
+                        initialValid={formState.inputs.about.isValid}
+                    />
+                    <Input
+                        id="email"
+                        element="input"
+                        type="email"
+                        label="Email"
+                        validators={[VALIDATOR_EMAIL()]}
+                        onInput={inputHandler}
+                        initialValue={formState.inputs.email.value}
+                        initialValid={formState.inputs.email.isValid}
+                    />
+                    <Button type="submit" disabled={!formState.isValid}>
+                        Update Profile
+                    </Button>
+                </form>
+            </Card>
+        </>
     );
 };
 

@@ -7,60 +7,60 @@ import Card from '../../shared/components/UIElements/Card';
 import { useForm } from '../../shared/hooks/form-hook';
 import { VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/util/validators';
 import Modal from '../../shared/components/UIElements/Modal';
-
-//import './EventForm.css'; 
+import { useHttpClient } from '../../shared/hooks/http-hook'; 
+import ErrorModal from '../../shared/components/UIElements/ErrorModal'; 
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 
 const NewEvent = () => {
-    // Example sports and skills
-    const sports = ['Mountain-Biking', 'Hiking', 'Running', 'Scuba'];
-    const skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
+    const navigate = useNavigate();
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
+    const [showModal, setShowModal] = useState(false);
+
+    const sports = ['Mountain-Biking', 'Hiking', 'Running', 'Skiing', 'Scuba-Diving', 'Kayaking'];
+    const skills = ['Beginner', 'Intermediate', 'Advanced'];
 
     const [formState, inputHandler] = useForm({
-        title: {
-            value: '',
-            isValid: false
-        },
-        description: {
-            value: '',
-            isValid: false
-        },
-        date: {
-            value: '',
-            isValid: false
-        },
-        time: {
-            value: '',
-            isValid: false
-        },
-        sportId: {
-            value: '',
-            isValid: false
-        },
-        skillLevel: {
-            value: '',
-            isValid: false
-        },
-        address: {
-            value: '',
-            isValid: false
-        }
+        title: { value: '', isValid: false },
+        description: { value: '', isValid: false },
+        date: { value: '', isValid: false },
+        time: { value: '', isValid: false },
+        sportId: { value: '', isValid: false },
+        skill: { value: '', isValid: false },
+        location: { value: '', isValid: false }
     }, false);
 
     
 
-    const [showModal, setShowModal] = useState(false);
-    const [eventId, setEventId] = useState(null); 
-    const navigate = useNavigate();
 
-    const eventSubmitHandler = async (event) => {
+    const eventSubmitHandler = async event => {
         event.preventDefault();
-
-        //testing
-        // Simulate event creation
-        console.log(formState.inputs); // Replace with your API call
-        setEventId('123'); 
-
-        setShowModal(true);
+        if (!formState.isValid) {
+            console.log("Form is not valid:", formState);
+            return;
+        }
+        try {
+            await sendRequest(
+                `http://localhost:5000/api/events/`,
+                'POST',
+                JSON.stringify({
+                    title: formState.inputs.title.value,
+                    description: formState.inputs.description.value,
+                    userId: '6626b2cf4c383e4719160c6a', // Hardcoded user ID for the sake of example
+                    datetime: `${formState.inputs.date.value}T${formState.inputs.time.value}:00Z`,
+                    sportId: formState.inputs.sportId.value,
+                    skill: formState.inputs.skill.value,
+                    location: formState.inputs.location.value,
+                    participants: [], // Initialize as empty or from state if needed
+                    comments: [], // Initialize as empty or handle form input for comments
+                    likes: [] // Initialize as empty
+                }),
+                { 'Content-Type': 'application/json' }
+            );
+            setShowModal(true);
+            navigate('/feed'); // Navigate after successful creation
+        } catch (err) {
+            console.error('Failed to create the event:', err);
+        }
     };
 
     const hideModal = () => {
@@ -72,7 +72,7 @@ const NewEvent = () => {
         navigate('/feed');
     };
 
-
+    //console.log(formState)
 
     return (
         <>
@@ -102,7 +102,7 @@ const NewEvent = () => {
                         element="textarea"
                         id="description"
                         label="Description"
-                        validators={[VALIDATOR_REQUIRE()]} 
+                        validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(5)]} 
                         onInput={inputHandler}
                     />
                     <Input
@@ -131,17 +131,17 @@ const NewEvent = () => {
                     />
                     <Input
                         element="select"
-                        id="skillLevel"
+                        id="skill"
                         label="Skill Level"
                         validators={[VALIDATOR_REQUIRE()]} 
                         onInput={inputHandler}
-                        options={skillLevels} //dropdown options
+                        options={skills} //dropdown options
                     />
                     <Input
                         element="input"
-                        id="address"
+                        id="location"
                         type="text"
-                        label="Address"
+                        label="Location"
                         validators={[VALIDATOR_REQUIRE()]} 
                         onInput={inputHandler}
                     />

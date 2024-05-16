@@ -7,40 +7,16 @@ import Card from '../../shared/components/UIElements/Card';
 import { useForm } from '../../shared/hooks/form-hook';
 import { VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/util/validators';
 import Modal from '../../shared/components/UIElements/Modal';
-
-
-const eventData = [{
-    id:"e1",
-    title: "Sample Event",
-    description: "This is a detailed description of the event.",
-    sportId: "Soccer",
-    datetime: "2023-12-10T14:00:00Z",
-    skill: "Intermediate",
-    email: "author@example.com",
-    location: "123 main rd",
-    comments: ["Great event!", "Looking forward to this!"],
-    likes: ['u1', 'u2'],
-    participants: ['u1', 'u2']
-},{
-    id:"e2",
-    title: "Sample Event 2",
-    description: "This is a detailed description of the event.",
-    sportId: "Soccer",
-    datetime: "2023-12-10T14:00:00Z",
-    skill: "Intermediate",
-    email: "author@example.com",
-    location: "123 main rd",
-    comments: ["Great event!", "Looking forward to this!"],
-    likes: ['u1', 'u2'],
-    participants: ['u1', 'u2']
-}];
+import { useHttpClient } from '../../shared/hooks/http-hook'; 
+import ErrorModal from '../../shared/components/UIElements/ErrorModal'; 
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 
 const EditEvent = () => {
     const eventId = useParams().eventId;
     const navigate = useNavigate();
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
     const [showModal, setShowModal] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
+    const [loadedEvent, setLoadedEvent] = useState(null);
 
     const [formState, inputHandler, setFormData] = useForm({
         title: { value: '', isValid: false },
@@ -49,66 +25,82 @@ const EditEvent = () => {
         time: { value: '', isValid: false },
         sportId: { value: '', isValid: false },
         skill: { value: '', isValid: false },
-        location: { value: '', isValid: false }
+        location: { value: '', isValid: false },
+        participants: { value:[], isValid:false},
+        comments: { value:[], isValid: false},
+        likes: { value:[], isValid: false }
     }, false);
 
-    const sports = ['Soccer', 'Basketball', 'Tennis', 'Baseball'];
+    const sports = ['Moutain-Biking', 'Hiking', 'Running', 'Skiing','Scuba-Diving','Kayaking'];
     const skill = ['Beginner', 'Intermediate', 'Advanced'];
 
-    const identifiedEvent = eventData.find(p => p.id === eventId);
-
-
     useEffect(() => {
-        if(identifiedEvent){
-            const date = identifiedEvent.datetime.split('T')[0]; //Extract Date
-            const time = identifiedEvent.datetime.split('T')[1].slice(0, 5); // Extract Time HH:mm 
-    
-            setFormData({
-                title: { value: identifiedEvent.title, isValid: true },
-                description: { value: identifiedEvent.description, isValid: true },
-                date: { value: date, isValid: true },
-                time: { value: time, isValid: true },
-                sportId: { value: identifiedEvent.sportId, isValid: true },
-                skill: { value: identifiedEvent.skill, isValid: true },
-                location: { value: identifiedEvent.location, isValid: true } 
-            }, true);
-        }
-        setIsLoading(false);
-    }, [setFormData, identifiedEvent]);
+        const fetchEvent = async () => {
+            try {
+                const responseData = await sendRequest(`http://localhost:5000/api/events/${eventId}`);
+                setLoadedEvent(responseData.event);
+                const event = responseData.event;
+                const date = event.datetime.split('T')[0];
+                const time = event.datetime.split('T')[1].slice(0, 5);
+
+                setFormData({
+                    title: { value: event.title, isValid: true },
+                    description: { value: event.description, isValid: true },
+                    date: { value: date, isValid: true },
+                    time: { value: time, isValid: true },
+                    sportId: { value: event.sportId, isValid: true },
+                    skill: { value: event.skill, isValid: true },
+                    location: { value: event.location, isValid: true },
+                    participants: { value:event.participants, isValid: true},
+                    comments: { value: event.comments, isValid:true},
+                    likes: { value:event.likes, isValid:true}
+
+                }, true);
+                //console.log(event.skill);
+                //console.log("Fetched Event Data:", responseData.event);
 
 
-    const eventUpdateHandler = event => {
+            } catch (err) {
+                console.error("Failed to fetch event data:", err);
+            }
+        };
+        if (!loadedEvent) fetchEvent();
+    }, [eventId, sendRequest, setFormData, loadedEvent]);
+
+    const eventUpdateHandler = async event => {
         event.preventDefault();
-        console.log(formState.inputs); // replace with API call
-        setShowModal(true);
-    };
-    
-    console.log(formState.inputs)
-    //console.log(formState.inputs.date.value)
-    //console.log(formState.inputs.time.value)
+        try {
+            //console.log(formState.inputs.skill.value);
 
-    if(!identifiedEvent){
-        return (
-            <div className="center">
-                <Card>
-                    <h2>Could not find event!</h2>
-                </Card>
-            </div>
+            await sendRequest(
+                `http://localhost:5000/api/events/${eventId}`,
+                'PATCH',
+                JSON.stringify({
+                    title: formState.inputs.title.value,
+                    description: formState.inputs.description.value,
+                    datetime: `${formState.inputs.date.value}T${formState.inputs.time.value}:00Z`,
+                    sportId: formState.inputs.sportId.value,
+                    skill: formState.inputs.skill.value,
+                    location: formState.inputs.location.value,
+                    participants: formState.inputs.participants.value,
+                    comments: formState.inputs.comments.value,
+                    likes: formState.inputs.likes.value
+                }),
+                { 'Content-Type': 'application/json' }
             );
+            setShowModal(true);
+        } catch (err) {
+            console.error('Failed to update the event:', err);
+        }
+    };
+
+    if (isLoading || !loadedEvent) {
+        return <LoadingSpinner />;
     }
-
-    if(isLoading){
-        return (
-            <div className="center">
-                <h2>Loading...</h2>
-            </div>
-        );
-    }
-
-
 
     return (
         <>
+            <ErrorModal error={error} onClear={clearError} />
             <Modal
                 show={showModal}
                 onCancel={() => setShowModal(false)}
@@ -157,11 +149,11 @@ const EditEvent = () => {
                         element="select" 
                         id="sportId" 
                         label="Sport"
-                           validators={[VALIDATOR_REQUIRE()]} 
-                           onInput={inputHandler}
-                           options={sports} 
-                           initialValue={formState.inputs.sportId.value} 
-                           initialValid={formState.inputs.sportId.isValid} />
+                        validators={[VALIDATOR_REQUIRE()]} 
+                        onInput={inputHandler}
+                        options={sports} 
+                        initialValue={formState.inputs.sportId.value} 
+                        initialValid={formState.inputs.sportId.isValid} />
                     <Input 
                         element="select" 
                         id="skill" 

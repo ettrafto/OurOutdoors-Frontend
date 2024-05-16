@@ -12,10 +12,10 @@ const NavProfile = props => {
                 <li>
                     <NavLink className='' to={`/profile/${props.userId}`}>
                         <div style={{
-                            width: '50px', // Specify the size of the circle
+                            width: '50px', // size of the circle
                             height: '50px',
-                            borderRadius: '50%', // This makes the div circular
-                            overflow: 'hidden', // Ensures the image doesn't overflow the circular shape
+                            borderRadius: '50%', // div circular
+                            overflow: 'hidden', // so image doesn't overflow the circular shape
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center'

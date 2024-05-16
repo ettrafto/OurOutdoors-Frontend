@@ -17,8 +17,9 @@ const EventList = props => {
     return <ul className='event-list'>
         {props.items.map(event => (
         <Event 
-            key={event.eventId} 
-            id={event.eventId}
+
+            key={event.id} 
+            id={event.id}
             authorId={event.authorId}
             authorName={event.authorName} 
             sportId={event.sportId}

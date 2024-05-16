@@ -28,7 +28,6 @@ const Event = props => {
   const commentsCount = props.comments.length;
   const likesCount = props.likes.length;
 
-  console.log(props.datetime)
   return (
     <li className="event-item">
       <Link to={`/event/${props.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>

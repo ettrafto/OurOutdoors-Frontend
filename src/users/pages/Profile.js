@@ -1,84 +1,79 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
 import Card from '../../shared/components/UIElements/Card';
 import Button from '../../shared/components/FormElements/Button';
 import EventList from '../../feed/components/EventList';
-
+import { useHttpClient } from '../../shared/hooks/http-hook'; 
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import pfp from '../../pictures/profilePic.jpg'
-
-// Assuming you have some path setup for images
-//import defaultProfileImage from '../../assets/profile-placeholder.png';
-
 import './Profile.css'; 
-
 
 const Profile = () => {
     const navigate = useNavigate();
+    const userId = '6626b2cf4c383e4719160c6a';//const { userId } = useParams(); 
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
+    
     const [userProfile, setUserProfile] = useState({
-        name: 'JohnDoe',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque.',
-        profileImage: '',//defaultProfileImage, 
-        events: [] // This would be fetched from the server
+        name: '',
+        about: '',
+        profileImage: '',
     });
-
+    const [loadedEvents, setLoadedEvents] = useState();
 
     useEffect(() => {
-      // Simulate fetching user profile data and events
-      const fetchProfileAndEvents = async () => {
-          // Fetch logic here or static data for example
-          setUserProfile({
-              name: 'JohnDoe',
-              about: 'I love sports and organizing events.',
-              profileImage: pfp,
-              events: [
-                {
-                  id: 'e1',
-                  authorId: 'u1',
-                  authorName: 'humaen',
-                  sportId: 'Moutain Biking',
-                  title: 'Bolton Potholes',
-                  description: 'I am going to Bolton Potholes at 9am to do the sunrise trail, I have 3 seats in my car and a bike rack!',
-                  imageUrl: '',
-                  datetime: '4/20/24 4:00pm',
-                  address: '1 Bolton Valley Access Rd, Bolton, VT 05676', 
-                  participants: ['u2','u3','u4'],
-                  comments: {
-                      comments: [
-                          'i love mountain biking',
-                          'im pumped',
-                          'ill be there'
-                      ]
-                  },
-                  likes: {
-                      likes: [
-                          'u2','u3','u4'
-                      ]
-                  }
-          
-              }
-              ]
-          });
-      };
+        const fetchProfile = async () => {
+            try {
+                const responseData = await sendRequest(`http://localhost:5000/api/users/${userId}`);
+                
+                //TODO: integrate fetching user events / fix below route
 
-      fetchProfileAndEvents();
-  }, []);
+                const eventDataIn = await sendRequest(`http://localhost:5000/api/users/events/${userId}`);
 
+                setUserProfile({
+                    name: responseData.user.name,
+                    about: responseData.user.about,
+                    profileImage: responseData.user.profileImage || '',
+                });
+                
+                setLoadedEvents(eventDataIn.events);
+                
+            } catch (err) {
+                console.error('Failed to fetch profile data:', err);
+            }
+        };
+
+        if (userId) {
+            fetchProfile();
+        }
+    }, [userId, sendRequest]);
+
+
+
+    if (isLoading) {
+        return <LoadingSpinner asOverlay />;
+    }
+
+    if (error) {
+        return <ErrorModal error={error} onClear={clearError} />;
+    }
+
+    console.log("Event DATA 3:", loadedEvents);
     return (
-      <div className="profile-page">
-          <Card className="profile-card">
-              <div className="profile-header">
-                  <img src={userProfile.profileImage} alt={userProfile.name} className="profile-image" />
-                  <div className="profile-info">
-                      <h2>{userProfile.name}</h2>
-                      <p>{userProfile.about}</p>
-                      <Button onClick={() => navigate('/profile/edit/u1')}>Edit Profile</Button>
-                  </div>
-              </div>
-          </Card>
-          <EventList items={userProfile.events} />
-      </div>
-  );
+        <div className="profile-page">
+            <Card className="profile-card">
+                <div className="profile-header">
+                    <img src={userProfile.profileImage || pfp} alt={userProfile.name} className="profile-image" />
+                    <div className="profile-info">
+                        <h2>{userProfile.name}</h2>
+                        <p>{userProfile.about}</p>
+                        <Button onClick={() => navigate(`/profile/edit/${userId}`)}>Edit Profile</Button>
+                    </div>
+                </div>
+            </Card>
+            {!isLoading && loadedEvents && <EventList items={loadedEvents} /> }
+        </div>
+    );
 };
 
 export default Profile;
