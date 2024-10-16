@@ -28,6 +28,11 @@ const Event = props => {
   const commentsCount = props.comments.length;
   const likesCount = props.likes.length;
 
+  const dateYear = props.datetime.slice(0,4)
+  const dateMonthDay = props.datetime.slice(5,10)
+  const displayDate = dateMonthDay + "-" + dateYear
+
+
   return (
     <li className="event-item">
       <Link to={`/event/${props.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -39,7 +44,7 @@ const Event = props => {
             </div>
             <div className="event-title-datetime">
               <h2>{props.title}</h2>
-              <p className="event-datetime">{props.datetime}</p>
+              <p className="event-datetime">{displayDate}</p>
             </div>
             <p className="event-description">{props.description.substring(0, 50)}...</p>
             <p className="event-meta">{props.sportId} - {props.skill} - {props.location}</p>

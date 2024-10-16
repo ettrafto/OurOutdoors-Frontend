@@ -24,11 +24,12 @@ const ViewEvent = () => {
   const [eventData, setEventData] = useState(null);  
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isJoined, setIsJoined] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);  
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState('');
   const [commentIsValid, setCommentIsValid] = useState(false);
   const [commentInputKey, setCommentInputKey] = useState(Date.now());
+  const [userNames, setUserNames] = useState({});
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -37,6 +38,29 @@ const ViewEvent = () => {
           `http://localhost:5000/api/events/${eventId}`
         );
         setEventData(responseData.event);
+
+        //set intial joined status
+        if (responseData.event.participants.includes(USER_ID)) {
+          setIsJoined(true);
+        } else {
+          setIsJoined(false);
+        }
+
+        //set intial like status
+        if (responseData.event.likes.includes(USER_ID)) {
+          setIsLiked(true);
+        } else {
+          setIsLiked(false);
+        }
+
+        // Fetch usernames for comments
+        const fetchedUserNames = {};
+        for (const comment of responseData.event.comments) {
+          const userName = await userIdTouserName(comment.userId);
+          fetchedUserNames[comment.userId] = userName;
+        }
+        setUserNames(fetchedUserNames); // Store usernames in state
+
       } catch (err) {}
     };
     fetchEvent();
@@ -87,6 +111,26 @@ const ViewEvent = () => {
     }
   }, [USER_ID, comment, commentIsValid, eventId, sendRequest]);
 
+  const userIdTouserName = async (userIdIn) => {
+    console.log(userIdIn)
+    try {
+      const responseData = await sendRequest(
+        `http://localhost:5000/api/users/${userIdIn}`,
+        'GET',
+        null, // No body for a GET request
+        { 'Content-Type': 'application/json' }
+      );
+  
+      // Assuming the API returns a user object with a name property
+      const userName = responseData.user.name;
+  
+      return userName;  // Return the user's name
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      return null; // Handle error by returning null or an appropriate fallback
+    }
+  }
+
   //join and leave logic
   const joinEvent = async () => {
     try {
@@ -124,10 +168,13 @@ const ViewEvent = () => {
 
   const toggleJoinEvent = () => {
     if (eventData.participants.includes(USER_ID)) {
-      setIsJoined(true);
+      console.log(eventData.participants.includes(USER_ID) ? 'joined': 'not joined');
+      //true
+      setIsJoined(false);
       leaveEvent();
     } else {
-      setIsJoined(false);
+      console.log(eventData.participants.includes(USER_ID) ? 'joined': 'not joined');
+      setIsJoined(true);
       joinEvent();
     }
   };
@@ -178,7 +225,26 @@ const ViewEvent = () => {
     navigate(`/event/edit/${eventId}`);
   };
 
+  //Converting datetime to more readable format
+  const dateYear = eventData.datetime.slice(0,4)
+  const dateMonthDay = eventData.datetime.slice(5,10)
+  const hour = eventData.datetime.slice(12,13)
+  let amPm
+  if (hour > 13){
+    hour - 12
+    amPm = ' PM'
+  } else {
+    amPm = ' AM'
+  }
+  const displayTime = hour + eventData.datetime.slice(13,16) + amPm
 
+  const displayDate = dateMonthDay + "-" + dateYear + " " + displayTime
+
+  /*
+  if (eventData.participants.includes(USER_ID)) {
+    setIsJoined(true);
+  }
+*/
   return (
     <>
       <Modal
@@ -198,19 +264,19 @@ const ViewEvent = () => {
         <h2>{eventData.title}</h2>
         <p>{eventData.description}</p>
         <p>Sport: {eventData.sportId}</p>
-        <p>Date and Time: {eventData.datetime}</p>
+        <p>Date and Time: {displayDate}</p>
         <p>Skill Level: {eventData.skill}</p>
         <Button onClick={toggleJoinEvent}>
-          {isJoined ? 'Join' : 'Leave'}
+          {isJoined ? 'Leave' : 'Join'}
         </Button>
         <Button onClick={toggleLikeEvent}>
-          {isLiked ? 'Like' : 'Unlike'}
+          {isLiked ? 'Unlike' : 'Like'}
         </Button>
         {auth.isLoggedIn && <Button onClick={navigateToEditEvent}>EDIT</Button>}
         {auth.isLoggedIn && <Button danger onClick={showDeleteWarningHandler}>DELETE</Button>}
         <div className='comments-container'>
           {eventData.comments.map((comment, index) => (
-            <p className='comment-item' key={index}>{comment.text}</p>
+            <p className='comment-item' key={index}>{userNames[comment.userId]} { ":  "} {comment.text}</p>
           ))}
           <Input
             className='comments-input'
