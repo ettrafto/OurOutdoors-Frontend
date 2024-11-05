@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom'; // Use useParams for dynamic userId
 import Card from '../../shared/components/UIElements/Card';
 import Button from '../../shared/components/FormElements/Button';
 import EventList from '../../feed/components/EventList';
 import { useHttpClient } from '../../shared/hooks/http-hook'; 
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
-import pfp from '../../pictures/profilePic.jpg'
+import FriendsList from '../../users/components/FriendsList'; // Import FriendsList
+import FriendRequests from '../../users/components/FriendRequests'; // Import FriendRequests
+import { AuthContext } from '../../shared/context/auth-context'; // For logged-in user context
+import pfp from '../../pictures/profilePic.jpg';
 import './Profile.css'; 
 
 const Profile = () => {
+    const auth = useContext(AuthContext); // Get the logged-in user's ID
+    const { userId } = useParams(); // UseParams to get userId from URL
     const navigate = useNavigate();
-    const userId = '6626b2cf4c383e4719160c6a';//const { userId } = useParams(); 
     const { isLoading, error, sendRequest, clearError } = useHttpClient();
     
     const [userProfile, setUserProfile] = useState({
@@ -20,14 +24,12 @@ const Profile = () => {
         profileImage: '',
     });
     const [loadedEvents, setLoadedEvents] = useState();
+    const [friendRequestSent, setFriendRequestSent] = useState(false); // Track if request was sent
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const responseData = await sendRequest(`http://localhost:5000/api/users/${userId}`);
-                
-                //TODO: integrate fetching user events / fix below route
-
                 const eventDataIn = await sendRequest(`http://localhost:5000/api/users/events/${userId}`);
 
                 setUserProfile({
@@ -35,9 +37,7 @@ const Profile = () => {
                     about: responseData.user.about,
                     profileImage: responseData.user.profileImage || '',
                 });
-                
                 setLoadedEvents(eventDataIn.events);
-                
             } catch (err) {
                 console.error('Failed to fetch profile data:', err);
             }
@@ -48,7 +48,23 @@ const Profile = () => {
         }
     }, [userId, sendRequest]);
 
+    const sendFriendRequestHandler = async () => {
+        try {
+            await sendRequest(
+                `http://localhost:5000/api/users/send-friend-request`,
+                'POST',
+                JSON.stringify({
+                    senderId: auth.userId, // Logged-in user's ID
+                    recipientId: userId    // Profile userId (target)
+                }),
+                { 'Content-Type': 'application/json' }
+            );
 
+            setFriendRequestSent(true); // Mark as sent
+        } catch (err) {
+            console.error('Failed to send friend request:', err);
+        }
+    };
 
     if (isLoading) {
         return <LoadingSpinner asOverlay />;
@@ -58,7 +74,6 @@ const Profile = () => {
         return <ErrorModal error={error} onClear={clearError} />;
     }
 
-    console.log("Event DATA 3:", loadedEvents);
     return (
         <div className="profile-page">
             <Card className="profile-card">
@@ -67,11 +82,32 @@ const Profile = () => {
                     <div className="profile-info">
                         <h2>{userProfile.name}</h2>
                         <p>{userProfile.about}</p>
-                        <Button onClick={() => navigate(`/profile/edit/${userId}`)}>Edit Profile</Button>
+                        
+                        {/* Show "Edit Profile" button if this is the user's profile */}
+                        {auth.userId === userId && (
+                            <Button onClick={() => navigate(`/profile/edit/${userId}`)}>Edit Profile</Button>
+                        )}
+
+                        {/* Show "Send Friend Request" button if this is not the user's profile */}
+                        {auth.userId !== userId && !friendRequestSent && (
+                            <Button onClick={sendFriendRequestHandler}>Send Friend Request</Button>
+                        )}
+
+                        {/* Show confirmation if request was sent */}
+                        {friendRequestSent && <p>Friend request sent!</p>}
                     </div>
                 </div>
             </Card>
-            {!isLoading && loadedEvents && <EventList items={loadedEvents} /> }
+
+            {/* Display FriendRequests component only on the logged-in user's profile */}
+            {auth.userId === userId && <FriendRequests userId={userId} />
+            }
+            <FriendRequests userId={userId} />
+
+            {/* Display FriendsList */}
+            <FriendsList userId={userId} />
+
+            {!isLoading && loadedEvents && <EventList items={loadedEvents} />}
         </div>
     );
 };

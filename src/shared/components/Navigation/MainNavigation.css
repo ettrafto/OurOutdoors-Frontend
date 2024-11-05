@@ -43,3 +43,6 @@
     display: block;
   }
 }
+.main-header{
+  z-index: 21;
+}

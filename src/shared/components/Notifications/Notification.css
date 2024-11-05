@@ -1,0 +1,42 @@
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .unread-count {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 0.2em 0.5em;
+    font-size: 0.8em;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  
+  .notification-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    width: 250px;
+    top: 30px;
+    right: 0;
+    z-index: 1000;
+  }
+  
+  .notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+.view-notifcation{
+    background-color: yellow;
+}

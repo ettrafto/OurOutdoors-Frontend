@@ -1,0 +1,68 @@
+.parrallax-container{
+    position: relative;
+    display: grid;
+    width:100%;
+    height:100vh;
+    /* overflow: hidden; */
+    place-items: center;
+    padding-top:5em;
+}
+
+.parrallax-image {
+    will-change: transform;
+    background-position: bottom;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateY(0);
+    transition: transform 0.2s ease-out; /* Smoother animation */
+}
+
+.parrallax-content {
+    position: relative;
+    margin-top: 0em; /* Controls spacing above images */
+    height: 100vh;
+    width: 100%;
+}
+
+.parrallax-layer6{
+    z-index: 8;
+    background-image: url('./parrallax/Layer6.png');
+}
+
+.parrallax-text{
+    position: relative;
+    color:white;
+    z-index: 17;
+    text-align: center;
+    padding-top:16%;
+    font-size:400%;
+}
+
+.parrallax-layer5{
+    z-index: 12;
+    background-image: url('./parrallax/Layer5.png');
+}
+
+.parrallax-layer4{
+    z-index: 14;
+    background-image: url('./parrallax/Layer4.png');
+}
+
+.parrallax-layer3{
+    z-index: 16;
+    background-image: url('./parrallax/Layer3.png');
+}
+
+.parrallax-layer2{
+    z-index: 18;
+    background-image: url('./parrallax/Layer2.png');
+}
+
+.parrallax-layer1{
+    z-index: 20;
+    background-image: url('./parrallax/Layer1.png');
+}

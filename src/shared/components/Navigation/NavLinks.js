@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/auth-context'; // Adjust path as necessary
 
 import './NavLinks.css';
+import NotificationBell from '../Notifications/NotificationBell';
 
 
 const NavLinks = () => {
@@ -23,11 +24,12 @@ const NavLinks = () => {
           </li>
           <li>
             {/* TODO: set to dynamic route!!! */}
-            <NavLink to="/profile/a">Profile</NavLink>
+            <NavLink to="/profile/6626b2cf4c383e4719160c6a">Profile</NavLink>
 
           </li>
         </>
       )}
+      <li><NotificationBell/></li>
       {!isLoggedIn && (
         <li>
           <NavLink to="/auth">Login</NavLink>

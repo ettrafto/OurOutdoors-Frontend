@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 
 import MainNavigation from './shared/components/Navigation/MainNavigation';
-import Home from './shared/pages/Home';
+import Home from './home/pages/Home';
 import Auth from './users/pages/Auth';
 import Profile from './users/pages/Profile';
 import EditProfile from './users/pages/EditProfile';
@@ -19,6 +19,8 @@ import EditEvent from './feed/pages/EditEvent';
 import Sports from './sports/pages/Sports';
 import SportPage from './sports/pages/SportPage';
 import { AuthContext } from './shared/context/auth-context';
+
+import './App.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -40,7 +42,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/auth" replace />} />
+            <Route path="/profile/:userId" element={isLoggedIn ? <Profile /> : <Navigate to="/auth" replace />} />
             <Route path="/profile/edit/:userId" element={isLoggedIn ? <EditProfile /> : <Navigate to="/auth" replace />} />
             <Route path="/feed" element={isLoggedIn ? <Feed /> : <Navigate to="/auth" replace />} />
             <Route path="/event/new" element={isLoggedIn ? <NewEvent /> : <Navigate to="/auth" replace />} />
