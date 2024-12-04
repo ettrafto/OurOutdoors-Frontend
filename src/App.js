@@ -1,12 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate
+  Navigate,
+  useLocation
 } from 'react-router-dom';
 
 import MainNavigation from './shared/components/Navigation/MainNavigation';
+import HomeNavigation from './shared/components/Navigation/HomeNavigation';
 import Home from './home/pages/Home';
 import Auth from './users/pages/Auth';
 import Profile from './users/pages/Profile';
@@ -24,6 +26,7 @@ import './App.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showHomeNav, setShowHomeNav] = useState(false);
 
   const login = useCallback(() => {
     setIsLoggedIn(true);
@@ -33,27 +36,28 @@ const App = () => {
     setIsLoggedIn(false);
   }, []);
 
+  const location = useLocation();
+  const isHomeRoute = location.pathname === '/';
+
 
   return (
     <AuthContext.Provider value={{isLoggedIn, login, logout}}>
-      <Router>
-        <MainNavigation />
-        <main>
+      {isHomeRoute ? <div></div>/*<HomeNavigation /> */: <MainNavigation />}
+      <main>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/profile/:userId" element={isLoggedIn ? <Profile /> : <Navigate to="/auth" replace />} />
-            <Route path="/profile/edit/:userId" element={isLoggedIn ? <EditProfile /> : <Navigate to="/auth" replace />} />
-            <Route path="/feed" element={isLoggedIn ? <Feed /> : <Navigate to="/auth" replace />} />
-            <Route path="/event/new" element={isLoggedIn ? <NewEvent /> : <Navigate to="/auth" replace />} />
-            <Route path="/event/edit/:eventId" element={isLoggedIn ? <EditEvent /> : <Navigate to="/auth" replace />} />
-            <Route path="/event/:eventId" element={isLoggedIn ? <ViewEvent /> : <Navigate to="/auth" replace />} />
-            <Route path="/sports" element={isLoggedIn ? <Sports /> : <Navigate to="/auth" replace />} />
-            <Route path="/sports/:sportId" element={isLoggedIn ? <SportPage /> : <Navigate to="/auth" replace />} />
+            <Route path="/profile/:userId" element={isLoggedIn ? <Profile /> : <Navigate to="/" replace />} />
+            <Route path="/profile/edit/:userId" element={isLoggedIn ? <EditProfile /> : <Navigate to="/" replace />} />
+            <Route path="/feed" element={isLoggedIn ? <Feed /> : <Navigate to="/" replace />} />
+            <Route path="/event/new" element={isLoggedIn ? <NewEvent /> : <Navigate to="/" replace />} />
+            <Route path="/event/edit/:eventId" element={isLoggedIn ? <EditEvent /> : <Navigate to="/" replace />} />
+            <Route path="/event/:eventId" element={isLoggedIn ? <ViewEvent /> : <Navigate to="/" replace />} />
+            <Route path="/sports" element={isLoggedIn ? <Sports /> : <Navigate to="/" replace />} />
+            <Route path="/sports/:sportId" element={isLoggedIn ? <SportPage /> : <Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-      </Router>
     </AuthContext.Provider>
   );
 };

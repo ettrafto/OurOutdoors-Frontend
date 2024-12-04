@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/auth-context'; // Adjust path as necessary
 
 import './NavLinks.css';
@@ -11,25 +11,30 @@ const NavLinks = () => {
 
   return (
     <ul className="nav-links">
-      <li>
-        <NavLink to="/">Home</NavLink>
-      </li>
+      {/*<li>
+        <NavLink to="/calendar">Calendar</NavLink>
+      </li>*/}
       {isLoggedIn && (
         <>
           <li>
             <NavLink to="/feed">Feed</NavLink>
           </li>
           <li>
-            <NavLink to="/sports">Sports</NavLink>
+            <NavLink to="/friends">Friends</NavLink>
           </li>
           <li>
-            {/* TODO: set to dynamic route!!! */}
-            <NavLink to="/profile/6626b2cf4c383e4719160c6a">Profile</NavLink>
+            <NavLink to="/myTrips">MyTrips</NavLink>
+          </li>
+          <li>
+            <NotificationBell/>
+          </li>
 
+          <li>
+            {/* TODO: set to dynamic route!!! */}
+            <Link className='nav-profilePic' to="/profile/6626b2cf4c383e4719160c6a" />
           </li>
         </>
       )}
-      <li><NotificationBell/></li>
       {!isLoggedIn && (
         <li>
           <NavLink to="/auth">Login</NavLink>

@@ -63,7 +63,7 @@ const Event = props => {
                 <span>{commentsCount}</span>
             </div>
           </div>
-        </Card>
+        </Card> 
       </Link>
     </li>
   );

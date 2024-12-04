@@ -1,0 +1,40 @@
+.sports-dropdown {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  .sports-dropdown select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .sport-details {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .sport-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .sport-details h3 {
+    margin: 10px 0 5px;
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  .sport-details p {
+    color: #666;
+    font-size: 1em;
+  }
+  

@@ -1,22 +1,72 @@
-.home-content-container{
-    
+.home-content-container {
     z-index: 21;
     background: rgb(0,0,0);
     background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,14,20,1) 100%);
-    color:white;
-    width:100%;
-    margin-top: -1px;
-    height:100%;
+    color: white;
+    width: 100%;
+    margin-top: 170vh;
+    height: 100%;
 }
 
-.home-content-details{
+.home-content-details {
     display: flex;
     flex-direction: row;
-    gap:25%;
+    gap: 25%;
+    margin: 0% 10% 10% 10%;
+    padding: 5%;
+    font-size: 250%;
+    font-family: "Averia Sans Libre", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    text-align: center;
 }
 
-.home-content-details{
-    margin: 7% 10% 10% 10%;
-    padding:5%;
-    font-size: 200%;
+.get-outside-container {
+    padding: 0% 39% 30% 39%;
+    height: 100%;
+}
+
+.get-outside-button {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 7%;
+    color: white;
+    border-radius: 40px;
+    overflow: hidden;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 64px;
+    text-transform: uppercase;
+    border: 1px solid white;
+}
+
+.get-outside-background {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: all 0.5s ease-out;
+    z-index: 1;
+}
+
+.get-outside-button:hover .get-outside-background {
+    width: 300%;
+    height: 300%;
+    opacity: 1;
+}
+
+.get-outside-button span {
+    position: relative;
+    z-index: 2;
+    font-size: x-large;
+    font-family: "Averia Sans Libre", sans-serif;
+    font-weight: 900;
+    font-style: normal;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import NotificationList from './NotificationList';  // Import the NotificationList child component
 import './Notification.css';
+import bell from './bell.png'
 
 const NotificationBell = () => {
   const userId = '6626b2cf4c383e4719160c6a';  // Replace with dynamic user ID as needed
@@ -41,7 +42,7 @@ const NotificationBell = () => {
 
   return (
     <div className="notification-bell">
-      <i className="bell-icon" onClick={toggleDropdown}>🔔</i>  {/* Your icon here */}
+      <img className='bell-icon' onClick={toggleDropdown} src={bell}></img>
       {unreadCount > 0 && <span className="unread-count">{unreadCount}</span>}
 
       {/* Render the NotificationList dropdown when the bell is clicked */}

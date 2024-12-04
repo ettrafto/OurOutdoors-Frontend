@@ -1,0 +1,12 @@
+/* HomeNavigation.css */
+.home-navigation {
+    background-color: #00000000;
+    padding: 1rem;
+  }
+  
+  .home-navigation-title {
+    text-align: center;
+    margin-left: 88%;
+    font-size: 200%;
+  }
+  

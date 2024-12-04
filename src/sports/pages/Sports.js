@@ -40,6 +40,12 @@ const Sports = () => {
             name: 'Skiing',
             image: '/pictures/sports/skiing.jpg',
             description: 'Fast as you can down a mountain on sticks'
+        },
+        {
+            id: 'Other',
+            name: 'Other',
+            image: '/pictures/sports/other.jpg',
+            description: 'Whatever your fancy is ;)'
         }
 
     ];
