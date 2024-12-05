@@ -1,20 +1,15 @@
-import React, { useContext } from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { AuthContext } from '../../context/auth-context'; // Adjust path as necessary
-
-import './NavLinks.css';
-import NotificationBell from '../Notifications/NotificationBell';
-
+import React, { useContext } from "react";
+import { NavLink, Link } from "react-router-dom";
+import { AuthContext } from "../../context/auth-context"; // Adjust the path as necessary
+import "./NavLinks.css";
+import NotificationBell from "../Notifications/NotificationBell";
 
 const NavLinks = () => {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { mongoUserId, logout } = useContext(AuthContext); // Use mongoUserId and logout from AuthContext
 
   return (
     <ul className="nav-links">
-      {/*<li>
-        <NavLink to="/calendar">Calendar</NavLink>
-      </li>*/}
-      {isLoggedIn && (
+      {mongoUserId ? (
         <>
           <li>
             <NavLink to="/feed">Feed</NavLink>
@@ -23,19 +18,28 @@ const NavLinks = () => {
             <NavLink to="/friends">Friends</NavLink>
           </li>
           <li>
-            <NavLink to="/myTrips">MyTrips</NavLink>
+            <NavLink to="/myTrips">My Trips</NavLink>
           </li>
           <li>
-            <NotificationBell/>
+            <NotificationBell />
           </li>
-
           <li>
-            {/* TODO: set to dynamic route!!! */}
-            <Link className='nav-profilePic' to="/profile/6626b2cf4c383e4719160c6a" />
+            {/* Profile link using the MongoDB user ID */}
+            <Link className="nav-profilePic" to={`/profile/${mongoUserId}`}>
+              <img
+                src="/path/to/default-profile-pic.jpg" // Replace with the actual profile picture URL if available
+                alt="Profile"
+                className="profile-pic"
+              />
+            </Link>
+          </li>
+          <li>
+            <button onClick={logout} className="nav-logout-button">
+              Logout
+            </button>
           </li>
         </>
-      )}
-      {!isLoggedIn && (
+      ) : (
         <li>
           <NavLink to="/auth">Login</NavLink>
         </li>
