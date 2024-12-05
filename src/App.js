@@ -39,6 +39,7 @@ const App = () => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
+
           // Fetch MongoDB user based on Firebase UID
           const response = await sendRequest(
             `http://localhost:5000/api/users/getByFirebaseUid/${firebaseUser.uid}`,
@@ -46,6 +47,8 @@ const App = () => {
           );
 
           setMongoUserId(response.user.id); // Set MongoDB user ID
+          console.log(response.user.id)
+
         } catch (err) {
           console.error("Failed to fetch MongoDB user:", err);
         }

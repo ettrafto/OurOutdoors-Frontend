@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
@@ -10,13 +10,15 @@ import Modal from '../../shared/components/UIElements/Modal';
 import { useHttpClient } from '../../shared/hooks/http-hook'; 
 import ErrorModal from '../../shared/components/UIElements/ErrorModal'; 
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import { AuthContext } from '../../shared/context/auth-context';
 
 const NewEvent = () => {
     const navigate = useNavigate();
     const { isLoading, error, sendRequest, clearError } = useHttpClient();
     const [showModal, setShowModal] = useState(false);
+    const { mongoUserId } = useContext(AuthContext); // MongoDB user ID from context
 
-    const sports = ['Mountain-Biking', 'Hiking', 'Running', 'Skiing', 'Scuba-Diving', 'Kayaking'];
+    const sports = ['Mountain-Biking', 'Hiking', 'Running', 'Skiing', 'Scuba-Diving', 'Kayaking', 'Other'];
     const skills = ['Beginner', 'Intermediate', 'Advanced'];
 
     const [formState, inputHandler] = useForm({
@@ -45,7 +47,7 @@ const NewEvent = () => {
                 JSON.stringify({
                     title: formState.inputs.title.value,
                     description: formState.inputs.description.value,
-                    userId: '6626b2cf4c383e4719160c6a', // Hardcoded user ID for the sake of example
+                    userId: mongoUserId, // Hardcoded user ID for the sake of example
                     datetime: `${formState.inputs.date.value}T${formState.inputs.time.value}:00Z`,
                     sportId: formState.inputs.sportId.value,
                     skill: formState.inputs.skill.value,

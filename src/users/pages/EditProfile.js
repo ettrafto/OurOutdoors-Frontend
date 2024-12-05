@@ -44,7 +44,7 @@ const EditProfile = () => {
         event.preventDefault();
         try {
             await sendRequest(
-                `http://localhost:5000/api/users/${userId}`,
+                `http://localhost:5000/api/users/edit/${userId}`,
                 'PATCH',
                 JSON.stringify({
                     name: formState.inputs.name.value,

@@ -26,6 +26,7 @@ const Profile = () => {
   const [loadedEvents, setLoadedEvents] = useState();
   const [friendRequestSent, setFriendRequestSent] = useState(false); // Track friend request status
 
+  console.log(userId)
   useEffect(() => {
     const fetchProfile = async () => {
       try {

@@ -41,7 +41,6 @@ const Feed = () => {
       setIsPublicSelected(isPublic);
     };
     
-    console.log(loadedEvents)
     return (
         <>
           <div className="interaction-container">
