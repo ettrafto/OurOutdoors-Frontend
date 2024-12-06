@@ -1,52 +1,109 @@
-import { useEffect, useState } from 'react';
-import NotificationList from './NotificationList';  // Import the NotificationList child component
+import { useEffect, useState, useContext } from 'react';
+import NotificationList from './NotificationList';
 import './Notification.css';
-import bell from './bell.png'
+import bell from './bell.png';
+import { AuthContext } from '../../context/auth-context';
 
 const NotificationBell = () => {
-  const userId = '6626b2cf4c383e4719160c6a';  // Replace with dynamic user ID as needed
+  const { mongoUserId } = useContext(AuthContext);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
+  const markNotificationsAsRead = async (notificationIds) => {
+    try {
+      await fetch('http://localhost:5000/api/notifications/mark-as-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationIds }),
+      });
+
+      // Update local state to mark notifications as read
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notificationIds.includes(notification._id)
+            ? { ...notification, isRead: true }
+            : notification
+        )
+      );
+
+      setUnreadCount(0); // Reset unread count
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/notifications/getUserNotification/${userId}`);
-
+        const response = await fetch(
+          `http://localhost:5000/api/notifications/getUserNotification/${mongoUserId}`
+        );
+    
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
-
+    
         const responseData = await response.json();
-        setUnreadCount(responseData.count);
-        setNotifications(responseData.notifications);
+    
+        // Merge updated notifications
+        setNotifications((prevNotifications) => {
+          const updatedNotifications = responseData.notifications.map(
+            (newNotification) => {
+              const existingNotification = prevNotifications.find(
+                (n) => n._id === newNotification._id
+              );
+              return existingNotification || newNotification;
+            }
+          );
+          return updatedNotifications;
+        });
+    
+        setUnreadCount(
+          responseData.notifications.filter((n) => !n.isRead).length
+        );
       } catch (error) {
-        console.error('Error fetching unread notifications:', error);
+        console.error('Error fetching notifications:', error);
       }
-    };
+    };    
 
     fetchUnreadNotifications();
 
-    // Poll for notifications every 15 seconds
     const intervalId = setInterval(fetchUnreadNotifications, 15000);
 
-    // Clean up the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, [userId]);
+  }, [mongoUserId]);
 
-  // Toggle dropdown visibility
   const toggleDropdown = () => {
-    setIsDropdownVisible(prevState => !prevState);
+    if (!isDropdownVisible) {
+      // Mark all unread notifications as read
+      const unreadNotificationIds = notifications
+        .filter((notification) => !notification.isRead)
+        .map((notification) => notification._id);
+
+      if (unreadNotificationIds.length > 0) {
+        markNotificationsAsRead(unreadNotificationIds);
+      }
+    }
+
+    setIsDropdownVisible((prevState) => !prevState);
   };
 
   return (
     <div className="notification-bell">
-      <img className='bell-icon' onClick={toggleDropdown} src={bell}></img>
+      <img
+        className="bell-icon"
+        onClick={toggleDropdown}
+        src={bell}
+        alt="Notifications"
+      />
       {unreadCount > 0 && <span className="unread-count">{unreadCount}</span>}
 
-      {/* Render the NotificationList dropdown when the bell is clicked */}
-      {isDropdownVisible && <NotificationList notifications={notifications} />}
+      {isDropdownVisible && (
+        <NotificationList notifications={notifications} />
+      )}
     </div>
   );
 };

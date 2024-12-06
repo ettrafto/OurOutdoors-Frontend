@@ -26,6 +26,7 @@ import { useHttpClient } from "./shared/hooks/http-hook"; // HTTP Client for API
 import LoadingSpinner from "./shared/components/UIElements/LoadingSpinner";
 
 import "./App.css";
+import AddFriend from "./users/pages/AddFriends";
 
 const App = () => {
   const [mongoUserId, setMongoUserId] = useState(null); // MongoDB user ID
@@ -47,7 +48,7 @@ const App = () => {
           );
 
           setMongoUserId(response.user.id); // Set MongoDB user ID
-          console.log(response.user.id)
+          console.log(firebaseUser.uid)
 
         } catch (err) {
           console.error("Failed to fetch MongoDB user:", err);
@@ -99,6 +100,10 @@ const App = () => {
           <Route
             path="/feed"
             element={mongoUserId ? <Feed /> : <Navigate to="/auth" replace />}
+          />
+          <Route
+            path="/friends"
+            element={mongoUserId ? <AddFriend /> : <Navigate to="/auth" replace />}
           />
           <Route
             path="/event/new"

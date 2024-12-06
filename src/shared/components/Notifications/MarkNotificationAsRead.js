@@ -12,4 +12,4 @@ const markNotificationsAsRead = async (notificationIds) => {
     }
   };
   
-  
+   

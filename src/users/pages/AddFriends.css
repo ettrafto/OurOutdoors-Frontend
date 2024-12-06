@@ -1,0 +1,46 @@
+.add-friend {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .add-friend h2 {
+    margin-bottom: 15px;
+  }
+  
+  .add-friend form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .add-friend input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .add-friend button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .add-friend button:hover {
+    background-color: #0056b3;
+  }
+  
+  .success-message {
+    margin-top: 10px;
+    color: green;
+  }
+  

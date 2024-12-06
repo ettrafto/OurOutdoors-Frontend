@@ -3,6 +3,8 @@ import { NavLink, Link } from "react-router-dom";
 import { AuthContext } from "../../context/auth-context"; // Adjust the path as necessary
 import "./NavLinks.css";
 import NotificationBell from "../Notifications/NotificationBell";
+import pfp from "../../../pictures/profilePic.png";
+
 
 const NavLinks = () => {
   const { mongoUserId, logout } = useContext(AuthContext); // Use mongoUserId and logout from AuthContext
@@ -18,16 +20,13 @@ const NavLinks = () => {
             <NavLink to="/friends">Friends</NavLink>
           </li>
           <li>
-            <NavLink to="/myTrips">My Trips</NavLink>
-          </li>
-          <li>
             <NotificationBell />
           </li>
           <li>
             {/* Profile link using the MongoDB user ID */}
             <Link className="nav-profilePic" to={`/profile/${mongoUserId}`}>
               <img
-                src="/path/to/default-profile-pic.jpg" // Replace with the actual profile picture URL if available
+                src = {pfp}
                 alt="Profile"
                 className="profile-pic"
               />

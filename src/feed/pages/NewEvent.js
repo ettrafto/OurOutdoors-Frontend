@@ -47,7 +47,7 @@ const NewEvent = () => {
                 JSON.stringify({
                     title: formState.inputs.title.value,
                     description: formState.inputs.description.value,
-                    userId: mongoUserId, // Hardcoded user ID for the sake of example
+                    userId: mongoUserId, 
                     datetime: `${formState.inputs.date.value}T${formState.inputs.time.value}:00Z`,
                     sportId: formState.inputs.sportId.value,
                     skill: formState.inputs.skill.value,

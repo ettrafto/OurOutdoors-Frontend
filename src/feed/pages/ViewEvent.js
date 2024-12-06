@@ -15,7 +15,6 @@ import './ViewEvent.css';
 
 const ViewEvent = () => {
   const { eventId } = useParams();
-  const USER_ID = '6626b2cf4c383e4719160c6a';//
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -30,6 +29,8 @@ const ViewEvent = () => {
   const [commentIsValid, setCommentIsValid] = useState(false);
   const [commentInputKey, setCommentInputKey] = useState(Date.now());
   const [userNames, setUserNames] = useState({});
+  const { mongoUserId } = useContext(AuthContext); // MongoDB user ID from context
+
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -40,14 +41,14 @@ const ViewEvent = () => {
         setEventData(responseData.event);
 
         //set intial joined status
-        if (responseData.event.participants.includes(USER_ID)) {
+        if (responseData.event.participants.includes(mongoUserId)) {
           setIsJoined(true);
         } else {
           setIsJoined(false);
         }
 
         //set intial like status
-        if (responseData.event.likes.includes(USER_ID)) {
+        if (responseData.event.likes.includes(mongoUserId)) {
           setIsLiked(true);
         } else {
           setIsLiked(false);
@@ -71,7 +72,7 @@ const ViewEvent = () => {
       const responseData = await sendRequest(
         `http://localhost:5000/api/events/${eventId}/like`,
         'PATCH',
-        JSON.stringify({ userId: USER_ID }),
+        JSON.stringify({ userId: mongoUserId }),
         { 'Content-Type': 'application/json' }
       );
       setEventData(prevEventData => ({
@@ -92,7 +93,7 @@ const ViewEvent = () => {
           `http://localhost:5000/api/events/${eventId}/comments`,
           'POST',
           JSON.stringify({
-            userId: USER_ID,
+            userId: mongoUserId,
             text: comment
           }),
           {
@@ -101,7 +102,7 @@ const ViewEvent = () => {
         );
         setEventData(prevEventData => ({
           ...prevEventData,
-          comments: [...prevEventData.comments, { userId: USER_ID, text: comment }]
+          comments: [...prevEventData.comments, { userId: mongoUserId, text: comment }]
         }));
         setComment('');
         setCommentIsValid(false);
@@ -109,7 +110,7 @@ const ViewEvent = () => {
         // handle errors as needed
       }
     }
-  }, [USER_ID, comment, commentIsValid, eventId, sendRequest]);
+  }, [mongoUserId, comment, commentIsValid, eventId, sendRequest]);
 
   const userIdTouserName = async (userIdIn) => {
     console.log(userIdIn)
@@ -137,12 +138,12 @@ const ViewEvent = () => {
       const responseData = await sendRequest(
         `http://localhost:5000/api/events/${eventId}/join`,
         'PATCH',
-        JSON.stringify({ userId: USER_ID }),
+        JSON.stringify({ userId: mongoUserId }),
         { 'Content-Type': 'application/json' }
       );
       setEventData(prevEventData => ({
         ...prevEventData,
-        participants: [...prevEventData.participants, USER_ID]
+        participants: [...prevEventData.participants, mongoUserId]
       }));
     } catch (err) {
       // Optionally handle error
@@ -154,12 +155,12 @@ const ViewEvent = () => {
       const responseData = await sendRequest(
         `http://localhost:5000/api/events/${eventId}/leave`,
         'PATCH',
-        JSON.stringify({ userId: USER_ID }),
+        JSON.stringify({ userId: mongoUserId }),
         { 'Content-Type': 'application/json' }
       );
       setEventData(prevEventData => ({
         ...prevEventData,
-        participants: prevEventData.participants.filter(id => id !== USER_ID)
+        participants: prevEventData.participants.filter(id => id !== mongoUserId)
       }));
     } catch (err) {
       // Optionally handle error
@@ -167,13 +168,13 @@ const ViewEvent = () => {
   };
 
   const toggleJoinEvent = () => {
-    if (eventData.participants.includes(USER_ID)) {
-      console.log(eventData.participants.includes(USER_ID) ? 'joined': 'not joined');
+    if (eventData.participants.includes(mongoUserId)) {
+      console.log(eventData.participants.includes(mongoUserId) ? 'joined': 'not joined');
       //true
       setIsJoined(false);
       leaveEvent();
     } else {
-      console.log(eventData.participants.includes(USER_ID) ? 'joined': 'not joined');
+      console.log(eventData.participants.includes(mongoUserId) ? 'joined': 'not joined');
       setIsJoined(true);
       joinEvent();
     }
@@ -241,10 +242,13 @@ const ViewEvent = () => {
   const displayDate = dateMonthDay + "-" + dateYear + " " + displayTime
 
   /*
-  if (eventData.participants.includes(USER_ID)) {
+  if (eventData.participants.includes(mongoUserId)) {
     setIsJoined(true);
   }
 */
+
+const isOwner = eventData.userId === mongoUserId;
+
   return (
     <>
       <Modal
@@ -272,8 +276,12 @@ const ViewEvent = () => {
         <Button onClick={toggleLikeEvent}>
           {isLiked ? 'Unlike' : 'Like'}
         </Button>
-        {auth.isLoggedIn && <Button onClick={navigateToEditEvent}>EDIT</Button>}
-        {auth.isLoggedIn && <Button danger onClick={showDeleteWarningHandler}>DELETE</Button>}
+        {isOwner && (
+          <>
+            <Button onClick={navigateToEditEvent}>EDIT</Button>
+            <Button danger onClick={showDeleteWarningHandler}>DELETE</Button>
+          </>
+        )}
         <div className='comments-container'>
           {eventData.comments.map((comment, index) => (
             <p className='comment-item' key={index}>{userNames[comment.userId]} { ":  "} {comment.text}</p>

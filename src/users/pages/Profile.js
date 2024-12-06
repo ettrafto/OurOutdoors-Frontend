@@ -9,7 +9,7 @@ import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import FriendsList from "../../users/components/FriendsList";
 import FriendRequests from "../../users/components/FriendRequests";
 import { AuthContext } from "../../shared/context/auth-context";
-import pfp from "../../pictures/profilePic.jpg";
+import pfp from "../../pictures/profilePic.png";
 import "./Profile.css";
 
 const Profile = () => {
